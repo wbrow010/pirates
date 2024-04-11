@@ -2,6 +2,7 @@
 import game.location as location
 from game.locations import *
 from game.events import *
+from game.events import fish_lily
 import game.ship as ship
 import game.context as context
 from game.display import announce
@@ -59,6 +60,8 @@ class World (context.Context):
         self.locs[self.startx + 1][self.starty] = peacefulIsland
 
         self.events = []
+        self.events.append (fish_lily.Fish())
+        self.events.append (fish_lily.Fish())
         self.events.append (lucky.LuckyDay())
         self.events.append (nothing.Nothing())
         self.events.append (seagull.Seagull())
