@@ -8,6 +8,7 @@ import game.context as context
 from game.display import announce
 import game.config as config
 import game.combat as Combat
+from game.locations.lily_island import Lily_island
 
 import random
 
@@ -52,7 +53,7 @@ class World (context.Context):
         self.locs[self.startx+1][self.starty] = whirl
 
         #Test island: always start off next to a test island. Swap in your island to test yours.
-        testland = island.Island (self.startx, self.starty+1, self)
+        testland = Lily_island (self.startx, self.starty+1, self)
         self.locs[self.startx][self.starty+1] = testland
 
         # Peaceful island directly to the right of the spawning location.
@@ -60,15 +61,15 @@ class World (context.Context):
         self.locs[self.startx + 1][self.starty] = peacefulIsland
 
         self.events = []
-        self.events.append (fish_lily.Fish())
-        self.events.append (fish_lily.Fish())
-        self.events.append (lucky.LuckyDay())
+        #self.events.append (fish_lily.Fish())
+        #self.events.append (fish_lily.Fish())
+        #self.events.append (lucky.LuckyDay())
         self.events.append (nothing.Nothing())
-        self.events.append (seagull.Seagull())
-        self.events.append (seagull.Seagull())
-        self.events.append (seagull.Seagull())
-        self.events.append (sickness.Sickness())
-        self.events.append (drowned_pirates.DrownedPirates())
+        #self.events.append (seagull.Seagull())
+        #self.events.append (seagull.Seagull())
+        #self.events.append (seagull.Seagull())
+        #self.events.append (sickness.Sickness())
+        #self.events.append (drowned_pirates.DrownedPirates())
         self.nouns["world"] = self
 
     def get_day (self):

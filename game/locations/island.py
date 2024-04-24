@@ -100,6 +100,7 @@ class Trees (location.SubLocation):
                     announce ("You take the "+item.name+" from the tree.")
                     config.the_player.add_to_inventory([item])
                     self.item_in_tree = None
+                    #moves time forward
                     config.the_player.go = True
                     at_least_one = True
                 item = self.item_in_clothes
