@@ -68,6 +68,7 @@ class ActionResolver():
                         deader = chosen_target.inflict_damage(damage, deathcause, True)
                         if not (deader is None):
                             announce (deader.get_name() + " is killed!")
+                            deader.on_death()
                     elif (roll == chosen_attk.success):
                         announce (moving.get_name() + " barely misses " + chosen_target.get_name() + "!")
                     else:
@@ -102,7 +103,13 @@ class CombatCritter(ActionResolver):
         for d in self.defenders:
             d.removeDefendee(self)
         self.defenders = []
+
+        #self.on_death()
+
         return self
+    
+    def on_death(self):
+        pass
 
     def addDefender(self, defender):
         self.defenders.append(defender)

@@ -2,6 +2,7 @@ from game.context import Context
 import game.config as config
 from game.display import *
 import random
+from npc import NPC
 
 class Location:
     '''A map location. May own explorable sub-locations'''
@@ -71,6 +72,8 @@ class SubLocation(Context):
         self.event_chance = 0
         #The events that may occur in this sub-location
         self.events = []
+        self.npcs = []
+        self.placeables = []
 
     def start_turn(self):
         #Maybe draw an event (if there are events and the event chance is rolled)

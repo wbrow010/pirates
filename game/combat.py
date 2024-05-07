@@ -6,6 +6,8 @@ from game.context import Context
 from game.display import announce
 from game.display import menu
 
+import game.items as items
+
 class Combat():
 
     def __init__ (self, monsters):
@@ -67,6 +69,10 @@ class Monster(superclasses.CombatCritter):
             attack = superclasses.Attack(key, self.attacks[key][0], self.attacks[key][1], self.attacks[key][2], False)
             attacks.append(superclasses.CombatAction(attack.name, attack, self))
         return attacks
+    
+    def getCombatAction(self, name):
+        return superclasses.CombatAction(name, superclasses.Attack(name, self.attacks[name][0], self.attacks[name][1], self.attacks[name][2], False), self)
+
 
     def pickAction(self):
         attacks = self.getAttacks()
@@ -87,3 +93,68 @@ class Drowned(Monster):
         attacks["punch 2"] = ["punches",random.randrange(35,51), (1,10)]
         #7 to 19 hp, bite attack, 65 to 85 speed (100 is "normal")
         super().__init__(name, random.randrange(7,20), attacks, 75 + random.randrange(-10,11))
+
+class Skeleton(Monster):
+    def __init__(self, name):
+        attacks = {}
+        #slash with sword, 50%-75% chance, 10-15 damage
+        attacks["slash"] = ["slashes", random.randrange(50,76), (10,15)]
+        #stab with sword, 75%-100% chance, 6-11 damage
+        attacks["stab"] = ["stabs", random.randrange(75,101), (6,11)]
+
+        super().__init__(name, random.randrange(15,25), attacks, 50 + random.randrange(-15,10))
+
+    def pickAction(self):
+        if self.health < 8: #if health is low, resort to a weaker, but more reliable attack
+            return self.getCombatAction("stab")
+        else:
+            return self.getCombatAction("slash")
+        
+    def on_death (self):
+        bone_drops = random.randint(1,2) #number of bones to drop
+        #add bones to inventory
+        for i in range(bone_drops):
+            config.the_player.inventory.append(items.Bone())
+        announce(f"{self.name} dropped {i} bone(s)")
+
+class SkeletonArcher(Monster):
+    def __init__(self, name):
+        attacks = {}
+        #slash with sword, 50%-75% chance, 10-15 damage
+        attacks["shoot"] = ["shoots", random.randrange(15,30), (15,25)]
+
+        super().__init__(name, random.randrange(8,16), attacks, 150 + random.randrange(-30,10))
+
+    def on_death (self):
+        bone_drops = random.randint(1,2) #number of bones to drop
+        #add bones to inventory
+        for i in range(bone_drops):
+            config.the_player.inventory.append(items.Bone())
+        announce(f"{self.name} dropped {i} bone(s)")
+    
+class Bandit(Monster):
+    def __init__(self, name):
+        self.inventory = []
+        self.swipe_chance = 0.25
+        attacks = {}
+        attacks["slash"] = ["slashes", random.randrange(15,30), (15,25)]
+        attacks["swipe"] = ["swipes", random.randrange(25,45), (5,10)]
+
+        super().__init__(name, random.randrange(8,16), attacks, 150 + random.randrange(-30,10))
+
+    def pickAction(self):
+        if random.random() <= self.swipe_chance:
+            if len(config.the_player.inventory) > 0:
+                stolen_item = config.the_player.inventory.pop(random.randint(0, len(config.the_player.inventory) - 1))
+                self.inventory.append(stolen_item)
+                announce(f"{self.name} has stolen {stolen_item.name} from you!")
+
+            return self.getCombatAction("swipe")
+        
+        return self.getCombatAction("slash")
+
+    def on_death (self):
+        #return stolen items to inventory
+        for item in self.inventory:
+            config.the_player.inventory.append(item)
+            announce(f"{self.name} dropped {item.name}.")

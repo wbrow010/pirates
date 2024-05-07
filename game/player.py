@@ -59,6 +59,11 @@ class Player (Context):
         self.verbs['inventory'] = self
         self.verbs['restock'] = self
         self.verbs['skills'] = self
+        self.verbs['talk'] = self
+        self.verbs['pickpocket'] = self
+        self.verbs['grab'] = self
+        self.verbs['place'] = self
+        self.verbs['unlock'] = self
 
         self.seen = []
         for i in range (0, self.world.worldsize):
@@ -120,21 +125,132 @@ class Player (Context):
         elif (verb == "go"):
             self.go = True
             if (len(cmd_list) > 1):
-                if (cmd_list[1] == "north"):
-                    self.location.process_verb ("north", cmd_list, nouns)
-                elif (cmd_list[1] == "south"):
-                    self.location.process_verb ("south", cmd_list, nouns)
-                elif (cmd_list[1] == "west"):
-                    self.location.process_verb ("west", cmd_list, nouns)
-                elif (cmd_list[1] == "east"):
-                    self.location.process_verb ("east", cmd_list, nouns)
-                elif (cmd_list[1] == "ashore" and self.location == self.ship):
+                if (cmd_list[1] == "ashore" and self.location == self.ship):
                     if self.ship.get_loc ().visitable == True:
                         self.ship.process_verb ("anchor", cmd_list, nouns)
                         self.ship.get_loc ().visit()
                     else:
                         announce("There's nowhere to go ashore.")
                         self.go = False
+                else: #every other location
+                    self.location.process_verb (cmd_list[1], cmd_list, nouns)
+
+        elif (verb == "talk"):
+            sublocation = config.the_player.location
+            npc_list = sublocation.npcs
+
+            found_npc = None
+            for npc in npc_list:
+                if npc.name == cmd_list[1]:
+                    found_npc = npc
+                    break
+
+            if found_npc != None:
+                found_npc.interact()
+            else:
+                print("NPC not found in this location.")
+
+        elif (verb == "pickpocket"):
+            sublocation = config.the_player.location
+            npc_list = sublocation.npcs
+
+            found_npc = None
+            for npc in npc_list:
+                if npc.name == cmd_list[1]:
+                    found_npc = npc
+                    break
+
+            if found_npc != None:
+                stolen_item = found_npc.pickpocket()
+
+                if stolen_item != None:
+                    config.the_player.inventory.append(stolen_item)
+            else:
+                print("NPC not found in this location.")
+
+
+        elif (verb == "grab"):
+
+            #get the item name
+
+            if len(cmd_list) == 4 and cmd_list[2] == "from": #format is "grab x from y"
+                item_name = cmd_list[1]
+                placeable_name = cmd_list[3]
+
+                sublocation = config.the_player.location
+                placeable_list = sublocation.placeables
+
+                #find the placeable
+                for placeable in placeable_list:
+                    if placeable.name == placeable_name: #found the placeable
+                        if placeable.item != None:
+                            if placeable.item.name == item_name:
+                                placeable.grabItem()
+                                return
+                            else:
+                                announce(f"The {placeable.name} does not have an {item_name} {placeable.prepositions[0]} it.")
+                                return
+                        else:
+                            announce(f"The {placeable.name} does not have any item {placeable.prepositions[0]} it.")
+                            return                
+
+                announce(f"There is no \"{placeable_name}\" to grab from.")
+                return
+
+            if len(cmd_list) == 3 and cmd_list[1] == "from": #format is "grab from y"
+                placeable_name = cmd_list[2]
+
+                sublocation = config.the_player.location
+                placeable_list = sublocation.placeables
+
+                #find the placeable
+                for placeable in placeable_list:
+                    if placeable.name == placeable_name:
+                        placeable.grabItem()
+                        return
+
+                announce(f"There is no \"{placeable_name}\" to grab from.")
+                return
+
+        elif (verb == "place"):
+            
+            if len(cmd_list) == 4: # format is "place x {preposition} y"
+                item_name = cmd_list[1]
+                preposition = cmd_list[2]
+                placeable_name = cmd_list[3]
+
+                sublocation = config.the_player.location
+                placeable_list = sublocation.placeables
+
+                #find the placeable
+                for placeable in placeable_list:
+                    if placeable.name == placeable_name: #found the placeable
+                        if preposition in placeable.prepositions: #used the correct preposition
+                            for item in config.the_player.inventory:
+                                if item.name == item_name: # found the item
+                                    placeable.placeItem(config.the_player.inventory.pop(config.the_player.inventory.index(item)))
+                                    return
+
+                            announce(f"You have no {item_name} in your inventory.")
+                            return
+                        else:
+                            announce(f"You cannot place an item {preposition} the {placeable.name}.")
+                            return
+                    
+                announce(f"There is no \"{placeable_name}\" to place {preposition}.")
+        elif (verb == "unlock"):
+            sublocation = config.the_player.location
+            placeable_list = sublocation.placeables
+            
+            placeable_name = cmd_list[1]
+
+            if placeable_name != None:
+                for placeable in placeable_list:
+                    if placeable.name == placeable_name: #found the placeable
+                        placeable.unlock()
+                        return
+                announce(f"There is no \"{placeable_name}\" to unlock.")
+
         else:
             announce ("Error: Player object does not understand verb " + verb)
             pass

@@ -93,3 +93,45 @@ class GoldenSword(Item):
         self.skill = "swords"
         self.verb = "slash"
         self.verb2 = "slashes"
+
+class Key(Item):
+    def __init__(self):
+        super().__init__("key", 100)
+        self.damage = (1,3)
+        self.skill = "knife"
+        self.verb = "stab"
+        self.verb2 = "stabs"
+
+class Orb(Item):
+    def __init__(self):
+        super().__init__("orb", 200)
+        self.damage = (3,6)
+        self.skill = "melee"
+        self.verb = "bash"
+        self.verb2 = "bashes"
+
+class PocketLint(Item):
+    def __init__(self):
+        super().__init__("pocket lint", 1)
+        self.damage = (0,0)
+        self.skill = "melee"
+        self.verb = "bash"
+        self.verb2 = "bashes"
+        
+class Bone(Item):
+    def __init__(self):
+        super().__init__("bone", 2)
+        self.damage = (5,10)
+        self.skill = "melee"
+        self.verb = "bash"
+        self.verb2 = "bashes"
+
+class DoubleBarrelFlintlock(Item):
+    def __init__(self):
+        super().__init__("double barrel flintlock", 1000) #Note: price is in shillings (a silver coin, 20 per pound)
+        self.damage = (10,100)
+        self.firearm = True
+        self.charges = 2
+        self.skill = "guns"
+        self.verb = "shoot"
+        self.verb2 = "shoots"

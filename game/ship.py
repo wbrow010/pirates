@@ -13,6 +13,8 @@ class Ship (Context):
         self.medicine = 5
         self.food = 100
         self.loc = None
+        self.npcs = []
+        self.placeables = []
 
         self.verbs['anchor'] = self
         self.verbs['north'] = self
