@@ -135,3 +135,8 @@ class DoubleBarrelFlintlock(Item):
         self.skill = "guns"
         self.verb = "shoot"
         self.verb2 = "shoots"
+
+    def recharge(self, owner):
+        if self.firearm == True and self.charges == 0 and owner.powder > 0:
+            self.charges = 2
+            owner.powder -= 1
