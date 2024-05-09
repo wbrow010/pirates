@@ -132,7 +132,7 @@ class Player (Context):
                     else:
                         announce("There's nowhere to go ashore.")
                         self.go = False
-                else: #every other location
+                else:
                     self.location.process_verb (cmd_list[1], cmd_list, nouns)
 
         elif (verb == "talk"):
